@@ -10,11 +10,15 @@
 
 # 文件结构案例
 ```
-JS基础
-|—— 原型链.md
-|—— 闭包.md
-└── Promise.md
-Vue
-└── Vue-cli.md
+前端^
+├── JS基础
+|   |—— 原型链.md
+|   |—— 闭包.md
+|   └── Promise.md
+└── Vue
+    └── Vue-cli.md
+后端^
+└── Go基础
+    └── 基础类型.md
 ```
 <br />
