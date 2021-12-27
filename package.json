@@ -1,0 +1,40 @@
+{
+  "name": "github-generator",
+  "version": "0.0.1",
+  "description": "使用一串代码自动生成github page所需的静态文件",
+  "main": "index.ts",
+  "scripts": {
+    "dev": "tsc -w",
+    "adduser": "npm adduser",
+    "first-npm": "npm publish --access public",
+    "upload": "tsc && concurrently \"npm publish\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SouthLiu/github-generator.git"
+  },
+  "keywords": [
+    "github-generator",
+    "github",
+    "blog",
+    "generator",
+    "自动生成",
+    "博客"
+  ],
+  "files": [
+    "dist"
+  ],
+  "author": {
+    "name": "South",
+    "email": "1275093225@qq.com"
+  },
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SouthLiu/github-generator/issues"
+  },
+  "homepage": "https://github.com/SouthLiu/github-generator#readme",
+  "devDependencies": {
+    "concurrently": "^6.5.1",
+    "typescript": "^4.5.4"
+  }
+}
