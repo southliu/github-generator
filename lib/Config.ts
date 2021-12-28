@@ -30,32 +30,18 @@ class Config {
     return { markdownUrl, pageUrl }
   }
 
-  // 读取缓存
-  readCache() {
-    // 获取文件
-    if (!fs.pathExistsSync(filePath)) {
-      console.log('文件不存在')
-      return { markdownUrl: '', pageUrl: '' }
-    }
-    let file = fs.readFileSync(filePath, 'utf-8')
-    let markdownUrl: IUrlData = file.match(markdownText)
-    let pageUrl: IUrlData = file.match(pageText)
-
-    // 去除多余数据
-    markdownUrl = markdownUrl ? markdownUrl[0].substring(15, markdownUrl[0].length - 1) : ''
-    pageUrl = pageUrl ? pageUrl[0].substring(11, pageUrl[0].length - 1) : ''
-
-    return { markdownUrl, pageUrl }
-  }
-
   // 读取文件
   readFile() {
-    // 获取文件
+    // 如果文件不存在则创建
     if (!fs.pathExistsSync(filePath)) {
-      console.log('文件不存在')
-      return false
+      // 文件内容
+      const fileCon = "exports.markdownUrl = '';exports.pageUrl = '';"
+      // 追加文件
+      fs.appendFileSync(filePath, fileCon)
     }
-    let file = fs.readFileSync(filePath, 'utf-8')
+
+    // 获取文件
+    const file = fs.readFileSync(filePath, 'utf-8')
 
     return file
   }
@@ -73,7 +59,29 @@ class Config {
   async update() {
     const { markdownUrl, pageUrl } = await this.getUrl()
     const file = this.readFile()
-    if (file) this.writeFile(markdownUrl, pageUrl, file)
+    this.writeFile(markdownUrl, pageUrl, file)
+
+    return { markdownUrl, pageUrl }
+  }
+
+  // 读取缓存
+  async readCache() {
+    let file = this.readFile()
+
+    let markdownUrl: IUrlData = file.match(markdownText)
+    let pageUrl: IUrlData = file.match(pageText)
+
+    // 去除多余数据
+    markdownUrl = markdownUrl ? markdownUrl[0].substring(15, markdownUrl[0].length - 1) : ''
+    pageUrl = pageUrl ? pageUrl[0].substring(11, pageUrl[0].length - 1) : ''
+
+    // 如果缓存数据为空则查询执行
+    if (!markdownUrl || !pageUrl) {
+      const { markdownUrl, pageUrl } = await this.update()
+      return { markdownUrl, pageUrl }
+    }
+
+    return { markdownUrl, pageUrl }
   }
 }
 

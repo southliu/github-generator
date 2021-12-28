@@ -4,13 +4,10 @@ import path from 'path'
 import figlet from 'figlet'
 import { cyanColor } from './src/utils'
 import Config from './lib/Config'
+import Genrator from './lib/Genrator'
 
 const pack = require(path.join(__dirname, '../package.json'))
 const program = new Command(pack.name)
-let data: IConfigUrls = {
-  markdownUrl: '',
-  pageUrl: ''
-}
 
 // 配置文件
 program
@@ -19,20 +16,20 @@ program
   .action(async () => {
     const config = new Config()
     await config.update()
-    config.readCache()
-    const { markdownUrl, pageUrl } = config.readCache()
-    console.log('pageUrl:', pageUrl)
-    console.log('markdownUrl:', markdownUrl)
   })
 
-
-// 配置文件
-program
-  .description('配置文件')
-  .command('config-data')
-  .action(() => {
-    console.log('config data:', data)
-  })
+  // 开始执行
+  program
+    .description('开始执行')
+    .command('start')
+    .action(async () => {
+      const config = new Config()
+      const { markdownUrl, pageUrl } = await config.readCache()
+      const genrator = new Genrator(markdownUrl, pageUrl)
+      console.log('pageUrl:', pageUrl)
+      console.log('markdownUrl:', markdownUrl)
+      console.log('genrator.markdownUrl:', genrator.markdownUrl)
+    })
 
 // 帮助说明
 program
