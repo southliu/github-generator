@@ -2,7 +2,7 @@
 import { Command } from 'commander'
 import path from 'path'
 import figlet from 'figlet'
-import { cyanColor } from './src/utils'
+import { cyanColor } from './lib/utils'
 import Config from './lib/Config'
 import Genrator from './lib/Genrator'
 
@@ -26,9 +26,11 @@ program
       const config = new Config()
       const { markdownUrl, pageUrl } = await config.readCache()
       const genrator = new Genrator(markdownUrl, pageUrl)
-      console.log('pageUrl:', pageUrl)
-      console.log('markdownUrl:', markdownUrl)
-      console.log('genrator.markdownUrl:', genrator.markdownUrl)
+      genrator.getList()
+      // genrator.downloadFile()
+      // console.log('pageUrl:', pageUrl)
+      // console.log('markdownUrl:', markdownUrl)
+      // console.log('genrator.markdownUrl:', genrator.markdownUrl)
     })
 
 // 帮助说明
