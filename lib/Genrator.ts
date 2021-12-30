@@ -3,6 +3,7 @@ import loading from 'loading-cli'
 import fs from 'fs-extra'
 import util from 'util'
 import path from 'path'
+import ejs from 'ejs'
 import { errorColor } from './utils'
 
 // 文件所在路径
@@ -100,8 +101,34 @@ class Genrator {
     }
 
     const dirs = this.handleDirs('../github_generator_datas')
-    console.log('dirs:', dirs);
     return dirs
+  }
+
+  // 写入模板
+  async write() {
+    const dirs = await this.getList()
+    // 模版文件目录
+    const templates = path.join(__dirname, '../templates')
+    dirs.length > 0 && dirs.forEach(item => {
+      ejs.renderFile(path.join(templates))
+    })
+    // 模版文件目录
+    // const destUrl = path.join(__dirname, '../templates'); 
+    // // 生成文件目录
+    // // process.cwd() 对应控制台所在目录
+    // const cwdUrl = process.cwd();
+    // // 从模版目录中读取文件
+    // fs.readdir(destUrl, (err, files) => {
+    //   if (err) throw err;
+    //   files.forEach((file) => {
+    //     // 使用 ejs 渲染对应的模版文件
+    //     // renderFile（模版文件地址，传入渲染数据）
+    //     (ejs as any).renderFile(path.join(destUrl, file), '123').then((data: any) => {
+    //       // 生成 ejs 处理后的模版文件
+    //       fs.writeFileSync(path.join(cwdUrl, file) , data)
+    //     })
+    //   })
+    // })
   }
 }
 
