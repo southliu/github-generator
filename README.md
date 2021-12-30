@@ -3,7 +3,7 @@
 <br />
 
 # 配置说明
-* markdown github链接：https://github.com/xxx(url链接，而不是git clone用的链接，确保有main分支)
+* markdown github链接：https://github.com/SouthLiu/blog(url链接，而不是git clone用的链接，确保有main分支)
 * page github链接：https://github.com/xxx(url链接，而不是git clone用的链接)
 
 # 逻辑实现

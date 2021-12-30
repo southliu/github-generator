@@ -106,29 +106,32 @@ class Genrator {
 
   // 写入模板
   async write() {
+    // 获取github markdown文件目录数据
     const dirs = await this.getList()
     // 模版文件目录
     const templates = path.join(__dirname, '../templates')
-    dirs.length > 0 && dirs.forEach(item => {
-      ejs.renderFile(path.join(templates))
+    // 读取模板文件
+    const templateDirs = fs.readdirSync(templates)
+    
+    // 输入数据
+    const data = { name: JSON.stringify(dirs) }
+
+    // 遍历模板文件输出对应内容
+    templateDirs.length > 0 && templateDirs.forEach(item => {
+      const cureenPath = path.join(__dirname, `../templates/${item}`)
+
+      ejs.renderFile(cureenPath, data).then(data => {
+        const pageDir = path.join(__dirname, '../github_page_datas')
+
+        // github_page_datas不存在则创建该目录
+        if (!fs.existsSync(pageDir)) {
+          fs.mkdirsSync('./bin/github_page_datas')
+        }
+
+        // 模板文件写进github_page_datas
+        fs.writeFileSync(path.join(__dirname, `../github_page_datas/${item}`) , data)
+      })
     })
-    // 模版文件目录
-    // const destUrl = path.join(__dirname, '../templates'); 
-    // // 生成文件目录
-    // // process.cwd() 对应控制台所在目录
-    // const cwdUrl = process.cwd();
-    // // 从模版目录中读取文件
-    // fs.readdir(destUrl, (err, files) => {
-    //   if (err) throw err;
-    //   files.forEach((file) => {
-    //     // 使用 ejs 渲染对应的模版文件
-    //     // renderFile（模版文件地址，传入渲染数据）
-    //     (ejs as any).renderFile(path.join(destUrl, file), '123').then((data: any) => {
-    //       // 生成 ejs 处理后的模版文件
-    //       fs.writeFileSync(path.join(cwdUrl, file) , data)
-    //     })
-    //   })
-    // })
   }
 }
 

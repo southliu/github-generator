@@ -4,14 +4,14 @@
   "description": "使用一串代码自动生成github page所需的静态文件",
   "main": "./main.ts",
   "bin": {
-    "github": "./main.ts"
+    "github": "./bin/main.js"
   },
   "scripts": {
     "dev": "tsc -w",
     "build": "tsc && copyfiles ./templates/* ./bin",
     "adduser": "npm adduser",
     "first-npm": "npm publish --access public",
-    "upload": "tsc && concurrently \"npm publish\""
+    "upload": "tsc && copyfiles ./templates/* ./bin && concurrently \"npm publish\""
   },
   "repository": {
     "type": "git",
@@ -38,7 +38,6 @@
   },
   "homepage": "https://github.com/SouthLiu/github-generator#readme",
   "dependencies": {
-    "axios": "^0.24.0",
     "commander": "^8.3.0",
     "download-git-repo": "^3.0.2",
     "ejs": "^3.1.6",

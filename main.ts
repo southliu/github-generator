@@ -6,13 +6,6 @@ import { cyanColor } from './lib/utils'
 import Config from './lib/Config'
 import Genrator from './lib/Genrator'
 
-// const { Command } = require('commander')
-// const { cyanColor } = require('./lib/utils')
-// const path = require('path')
-// const figlet = require('figlet')
-// const Config = require('./lib/Config')
-// const Genrator = require('./lib/Genrator')
-
 const pack = require(path.join(__dirname, '../package.json'))
 const program = new Command(pack.name)
 
@@ -34,10 +27,6 @@ program
       const { markdownUrl, pageUrl } = await config.readCache()
       const genrator = new Genrator(markdownUrl, pageUrl)
       genrator.write()
-      // genrator.downloadFile()
-      // console.log('pageUrl:', pageUrl)
-      // console.log('markdownUrl:', markdownUrl)
-      // console.log('genrator.markdownUrl:', genrator.markdownUrl)
     })
 
 // 帮助说明
