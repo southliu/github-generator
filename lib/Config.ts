@@ -23,7 +23,7 @@ class Config {
       {
         name: 'pageUrl',
         type: 'input',
-        message: '请输入github page链接:'
+        message: '请输入github page链接(SSH链接):'
       }
     ])
 

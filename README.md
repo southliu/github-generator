@@ -3,8 +3,8 @@
 <br />
 
 # 配置说明
-* markdown github链接：https://github.com/SouthLiu/blog(url链接，而不是git clone用的链接，确保有main分支)
-* page github链接：https://github.com/xxx(url链接，而不是git clone用的链接)
+* markdown github链接：https://github.com/SouthLiu/blog (url链接，而不是git clone用的链接，确保有main分支)
+* page github链接：git@github.com:SouthLiu/test.git (SSH链接，而不是git clone用的链接)
 
 # 逻辑实现
 1. config文件输入目标github项目地址和github page项目地址。

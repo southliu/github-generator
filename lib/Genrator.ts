@@ -4,10 +4,11 @@ import fs from 'fs-extra'
 import util from 'util'
 import path from 'path'
 import ejs from 'ejs'
-import { errorColor } from './utils'
+import concurrently from 'concurrently'
+import { errorColor, MARKDOWN_DATA, PAGE_DATA } from './utils'
 
 // 文件所在路径
-const filePath = path.join(__dirname, '../github_generator_datas')
+const filePath = path.join(__dirname, `../${MARKDOWN_DATA}`)
 
 type IDirs = {
   name: string;
@@ -16,15 +17,25 @@ type IDirs = {
 class Genrator {
   markdownUrl: string
   pageUrl: string
+  isSuccess: boolean
   fileName: string | undefined
   constructor(markdownUrl: string, pageUrl: string) {
     this.markdownUrl = markdownUrl
     this.pageUrl =  pageUrl
+    this.isSuccess = false
 
-    // 获取文件名
-    if (markdownUrl) {
-      const arr = markdownUrl.split('/')
+    /**
+     * 获取文件名
+     * 1. 需要git clone下载page项目
+     * 2. 获取.git文件，并更新代码
+     */
+    if (pageUrl) {
+      const arr = pageUrl.split('/')
       let fileName = arr[arr.length - 1]
+      // 去除多余后缀
+      if (fileName.includes('.')) {
+        fileName = fileName.split('.')[0]
+      }
       this.fileName = fileName
     }
   }
@@ -41,10 +52,12 @@ class Genrator {
       const result = await fn;
       // 状态成功
       load.stop()
+      this.isSuccess = true
       return result; 
     } catch (error) {
       // 状态失败
       load.stop()
+      this.isSuccess = false
       console.log(`${errorColor('执行失败,请重试')}`)
       return false
     }
@@ -66,7 +79,9 @@ class Genrator {
         .then(() => console.log('\n 下载成功'))
         .catch(() => {
           // 错误处理
+          this.isSuccess = false
           console.log(errorColor('\n  下载失败'))
+          console.log(errorColor('建议重新执行配置操作：github config'))
         })
       )
   }
@@ -100,8 +115,31 @@ class Genrator {
       await this.downloadFile()
     }
 
-    const dirs = this.handleDirs('../github_generator_datas')
+    const dirs = this.isSuccess ? this.handleDirs(`../${MARKDOWN_DATA}`) : []
     return dirs
+  }
+
+  // 克隆github page项目
+  async cloneProject() {
+    const faterDir = path.join(__dirname, `../${PAGE_DATA}`)
+    const projectDir = path.join(__dirname, `../${PAGE_DATA}/${this.fileName}`)
+
+    if (!fs.existsSync(faterDir)) {
+      fs.mkdirsSync(`./bin/${PAGE_DATA}`)
+    }
+
+    // 文件不存在则下载下载github page
+    if (!fs.existsSync(projectDir)) {
+      await concurrently([{ command: `git clone ${this.pageUrl}`, cwd: faterDir }])
+    }
+  }
+
+  // 删除生成文件
+  removeDir() {
+    const pageDir = path.join(__dirname, `../${PAGE_DATA}`)
+    const markdownDir = path.join(__dirname, `../${MARKDOWN_DATA}`)
+    fs.removeSync(pageDir)
+    fs.removeSync(markdownDir)
   }
 
   // 写入模板
@@ -116,22 +154,29 @@ class Genrator {
     // 输入数据
     const data = { name: JSON.stringify(dirs) }
 
+    // 克隆page项目
+    await this.cloneProject()
+
     // 遍历模板文件输出对应内容
     templateDirs.length > 0 && templateDirs.forEach(item => {
       const cureenPath = path.join(__dirname, `../templates/${item}`)
 
       ejs.renderFile(cureenPath, data).then(data => {
-        const pageDir = path.join(__dirname, '../github_page_datas')
-
-        // github_page_datas不存在则创建该目录
-        if (!fs.existsSync(pageDir)) {
-          fs.mkdirsSync('./bin/github_page_datas')
-        }
-
-        // 模板文件写进github_page_datas
-        fs.writeFileSync(path.join(__dirname, `../github_page_datas/${item}`) , data)
+        // 模板文件写进github_page_data
+        fs.writeFileSync(path.join(__dirname, `../${PAGE_DATA}/${this.fileName}/${item}`) , data)
       })
     })
+
+    // 上传至github page
+    const projectDir = path.join(__dirname, `../${PAGE_DATA}/${this.fileName}`)
+    await concurrently([
+      { command: `git add .`, cwd: projectDir },
+      { command: `git commit -m "${new Date().getTime()}"`, cwd: projectDir },
+      { command: `git push`, cwd: projectDir }
+    ])
+
+    // 删除生成文件
+    this.removeDir()
   }
 }
 

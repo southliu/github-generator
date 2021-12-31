@@ -1,3 +1,6 @@
+export const MARKDOWN_DATA = 'github_markdown_data'
+export const PAGE_DATA = 'github_page_data'
+
 // 添加 ANSI 转义字符，以将文本输出为红色
 export function errorColor(str: string) {
   return `\x1b[31m${str}\x1b[0m`;
