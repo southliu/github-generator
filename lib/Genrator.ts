@@ -22,7 +22,7 @@ class Genrator {
   constructor(markdownUrl: string, pageUrl: string) {
     this.markdownUrl = markdownUrl
     this.pageUrl =  pageUrl
-    this.isSuccess = false
+    this.isSuccess = true
 
     /**
      * 获取文件名
@@ -134,6 +134,16 @@ class Genrator {
     }
   }
 
+  // 上传github
+  async uploadGithub() {
+    const projectDir = path.join(__dirname, `../${PAGE_DATA}/${this.fileName}`)
+    await concurrently([
+      { command: `git add .`, cwd: projectDir },
+      { command: `git commit -m "${new Date().getTime()}"`, cwd: projectDir },
+      { command: `git push`, cwd: projectDir }
+    ])
+  }
+
   // 删除生成文件
   removeDir() {
     const pageDir = path.join(__dirname, `../${PAGE_DATA}`)
@@ -153,6 +163,8 @@ class Genrator {
     
     // 输入数据
     const data = { name: JSON.stringify(dirs) }
+    console.log('dirs:', dirs)
+    fs.writeFileSync(path.join(__dirname, `../templates/static/js/data.js`) , `export const data = ${JSON.stringify(dirs)}`)
 
     // 克隆page项目
     await this.cloneProject()
@@ -168,15 +180,10 @@ class Genrator {
     })
 
     // 上传至github page
-    const projectDir = path.join(__dirname, `../${PAGE_DATA}/${this.fileName}`)
-    await concurrently([
-      { command: `git add .`, cwd: projectDir },
-      { command: `git commit -m "${new Date().getTime()}"`, cwd: projectDir },
-      { command: `git push`, cwd: projectDir }
-    ])
+    // await this.uploadGithub()
 
     // 删除生成文件
-    this.removeDir()
+    // this.removeDir()
   }
 }
 
