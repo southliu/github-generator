@@ -1,6 +1,6 @@
 import downloadGitRepo from 'download-git-repo'
 import loading from 'loading-cli'
-import fs from 'fs-extra'
+import fs, { readFileSync } from 'fs-extra'
 import util from 'util'
 import path from 'path'
 import ejs from 'ejs'
@@ -12,6 +12,8 @@ const filePath = path.join(__dirname, `../${MARKDOWN_DATA}`)
 
 type IDirs = {
   name: string;
+  fileName: string;
+  content: string;
   children: IDirs[]
 }
 class Genrator {
@@ -99,8 +101,18 @@ class Genrator {
 
     const dirArrs: IDirs[] = []
     dirs.forEach(item => {
+      // 去除.md后缀名
+      const name = item.includes('.md') ? item.split('.md')[0] : item
+      // 获取内容
+      let content = ''
+      if (item.includes('.md')) {
+        content = readFileSync(path.join(__dirname, `${cureenPath}/${item}`), 'utf-8')
+      }
+
       dirArrs.push({
-        name: item,
+        name,
+        content,
+        fileName: item,
         children: this.handleDirs(`${cureenPath}/${item}`)
       })
     })
@@ -163,8 +175,7 @@ class Genrator {
     
     // 输入数据
     const data = { name: JSON.stringify(dirs) }
-    console.log('dirs:', dirs)
-    fs.writeFileSync(path.join(__dirname, `../templates/static/js/data.js`) , `export const data = ${JSON.stringify(dirs)}`)
+    fs.writeFileSync(path.join(__dirname, `../templates/static/js/data.js`) , `const menus = ${JSON.stringify(dirs)}`)
 
     // 克隆page项目
     await this.cloneProject()

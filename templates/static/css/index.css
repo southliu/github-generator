@@ -21,6 +21,7 @@ header #title {
 
 main {
   display: flex;
+  height: 100%;
 }
 
 main .left {
@@ -35,4 +36,14 @@ main .left {
 main .right {
   width: calc(100% - 200px);
   height: 100%;
+  padding: 20px 30px;
+  min-height: calc(100vh - 58px);
+  border-left: 1px solid #ececec;
+  box-sizing: border-box;
+}
+
+main .menu_title {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }

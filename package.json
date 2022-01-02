@@ -8,10 +8,10 @@
   },
   "scripts": {
     "dev": "tsc -w",
-    "build": "tsc && copyfiles ./templates/* ./bin",
+    "build": "tsc && copyfiles ./templates/** ./bin",
     "adduser": "npm adduser",
     "first-npm": "npm publish --access public",
-    "upload": "tsc && copyfiles ./templates/* ./bin && concurrently \"npm publish\""
+    "upload": "tsc && copyfiles ./templates/** ./bin && concurrently \"npm publish\""
   },
   "repository": {
     "type": "git",

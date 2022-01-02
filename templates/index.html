@@ -19,7 +19,6 @@
         :default-active="activeIndex"
         :ellipsis="false"
         mode="horizontal"
-        @select="handleSelectNav"
       >
         <el-menu-item index="1">首页</el-menu-item>
         <el-sub-menu index="2">
@@ -43,34 +42,58 @@
 </body>
 <script>
   const App = {
-    data() {
-      return {
-        activeIndex: '1',
-        con: '',
-        menus
-      };
-    },
-    methods: {
+    name: 'app',
+    setup(props, context) {
+      const { ref } = Vue
+      const activeIndex = ref('1') // 导航默认值
+      const con = ref('') // 渲染内容
+
       // 点击导航
-      handleSelectNav(key, keyPath) {},
+      const handleSelectNav = (key, keyPath) => {}
+
+      // 递归菜单
+      const handleMenuData = (menus, keyPath, deep = 0) => {
+        menus.length > 0 && menus.forEach(item => {
+          if (item.name === keyPath[deep]) {
+            if (deep === keyPath.length - 1) {
+              return con.value =  item.content
+            }
+            if (item.children.length) {
+              return handleMenuData(item.children, keyPath, ++deep)
+            }
+          }
+        })
+      }
+
       // 点击菜单
-      handleSelectMenu(key, keyPath) {
-        console.log(key, keyPath)
-        console.log('menus:', menus)
-        this.con = keyPath
+      const handleSelectMenu = (key, keyPath) => {
+        handleMenuData(menus, keyPath)
+      }
+
+      return {
+        activeIndex,
+        con,
+        menus,
+        handleSelectNav,
+        handleSelectMenu
       }
     }
   };
 
+  // 注入Vue和ElementPlus
   const app = Vue.createApp(App);
   app.use(ElementPlus);
+
+  // 菜单组件
   app.component('blog-menu', {
     name: 'blogMenu',
     props: ['data'],
     template: `<template v-for="item in data" :key="item.name">
         <el-menu-item
-          v-if="item.children.length === 0 && item.name !== 'README.md'"
+          v-if="item.children.length === 0 && item.name !== 'README'"
           :index="item.name"
+          :title="item.name"
+          class="menu_title"
         >
           {{ item.name }}
         </el-menu-item>
@@ -83,6 +106,8 @@
         </el-sub-menu>
       </template> `
   })
+
+  // 挂载至app
   app.mount("#app");
 </script>
 </html>
