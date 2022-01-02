@@ -1,6 +1,5 @@
 # 功能介绍
 ### 使用一串代码自动生成github page所需的静态文件。
-<br />
 
 # 配置说明
 * markdown github链接：https://github.com/SouthLiu/blog (url链接，而不是git clone用的链接，确保有main分支)
@@ -13,7 +12,7 @@
 4. 模板文件全局覆盖github page项目。
 <br />
 
-# 文件结构案例
+# 文件结构
 ```
 前端^
 ├── JS基础
