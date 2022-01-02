@@ -1,7 +1,8 @@
 export {}
 declare global {
   interface IConfigUrls {
-    markdownUrl: string,
-    pageUrl: string
+    markdownUrl: string;
+    pageUrl: string;
+    title: string;
   }
 }

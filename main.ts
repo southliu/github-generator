@@ -24,8 +24,8 @@ program
     .command('start')
     .action(async () => {
       const config = new Config()
-      const { markdownUrl, pageUrl } = await config.readCache()
-      const genrator = new Genrator(markdownUrl, pageUrl)
+      const { markdownUrl, pageUrl, title } = await config.readCache()
+      const genrator = new Genrator(markdownUrl, pageUrl, title)
       genrator.write()
     })
 

@@ -3,9 +3,8 @@ import loading from 'loading-cli'
 import fs, { readFileSync } from 'fs-extra'
 import util from 'util'
 import path from 'path'
-import ejs from 'ejs'
 import concurrently from 'concurrently'
-import { errorColor, MARKDOWN_DATA, PAGE_DATA } from './utils'
+import { errorColor, MARKDOWN_DATA, PAGE_DATA, removeDir } from './utils'
 
 // 文件所在路径
 const filePath = path.join(__dirname, `../${MARKDOWN_DATA}`)
@@ -19,11 +18,13 @@ type IDirs = {
 class Genrator {
   markdownUrl: string
   pageUrl: string
+  title: string
   isSuccess: boolean
   fileName: string | undefined
-  constructor(markdownUrl: string, pageUrl: string) {
+  constructor(markdownUrl: string, pageUrl: string, title: string) {
     this.markdownUrl = markdownUrl
     this.pageUrl =  pageUrl
+    this.title = title
     this.isSuccess = true
 
     /**
@@ -35,9 +36,10 @@ class Genrator {
       const arr = pageUrl.split('/')
       let fileName = arr[arr.length - 1]
       // 去除多余后缀
-      if (fileName.includes('.')) {
-        fileName = fileName.split('.')[0]
+      if (fileName.includes('.git')) {
+        fileName = fileName.split('.git')[0]
       }
+      console.log('fileName:', fileName);
       this.fileName = fileName
     }
   }
@@ -83,7 +85,7 @@ class Genrator {
           // 错误处理
           this.isSuccess = false
           console.log(errorColor('\n  下载失败'))
-          console.log(errorColor('建议重新执行配置操作：github config'))
+          console.log(errorColor('  建议重新执行配置操作：github config'))
         })
       )
   }
@@ -136,6 +138,7 @@ class Genrator {
     const faterDir = path.join(__dirname, `../${PAGE_DATA}`)
     const projectDir = path.join(__dirname, `../${PAGE_DATA}/${this.fileName}`)
 
+    // 不存在则生成
     if (!fs.existsSync(faterDir)) {
       fs.mkdirsSync(`./bin/${PAGE_DATA}`)
     }
@@ -156,45 +159,32 @@ class Genrator {
     ])
   }
 
-  // 删除生成文件
-  removeDir() {
-    const pageDir = path.join(__dirname, `../${PAGE_DATA}`)
-    const markdownDir = path.join(__dirname, `../${MARKDOWN_DATA}`)
-    fs.removeSync(pageDir)
-    fs.removeSync(markdownDir)
-  }
-
   // 写入模板
   async write() {
     // 获取github markdown文件目录数据
     const dirs = await this.getList()
     // 模版文件目录
     const templates = path.join(__dirname, '../templates')
-    // 读取模板文件
-    const templateDirs = fs.readdirSync(templates)
-    
-    // 输入数据
-    const data = { name: JSON.stringify(dirs) }
-    fs.writeFileSync(path.join(__dirname, `../templates/static/js/data.js`) , `const menus = ${JSON.stringify(dirs)}`)
+    // 生成文件
+    const projectDir = path.join(__dirname, `../${PAGE_DATA}/${this.fileName}`)
+    // 数据文件
+    const dataFile = path.join(__dirname, `../templates/static/js/data.js`)
 
     // 克隆page项目
     await this.cloneProject()
-
-    // 遍历模板文件输出对应内容
-    templateDirs.length > 0 && templateDirs.forEach(item => {
-      const cureenPath = path.join(__dirname, `../templates/${item}`)
-
-      ejs.renderFile(cureenPath, data).then(data => {
-        // 模板文件写进github_page_data
-        fs.writeFileSync(path.join(__dirname, `../${PAGE_DATA}/${this.fileName}/${item}`) , data)
-      })
-    })
+    
+    // 生成数据
+    const data = `const title = ${this.title};const menus = ${JSON.stringify(dirs)}`
+    // 写入data.js数据
+    fs.writeFileSync(dataFile, data)
+    // 将模板文件复制到github上传文件目录下
+    fs.copySync(templates, projectDir)
 
     // 上传至github page
-    // await this.uploadGithub()
+    await this.uploadGithub()
 
     // 删除生成文件
-    // this.removeDir()
+    removeDir()
   }
 }
 
