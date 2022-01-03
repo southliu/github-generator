@@ -174,7 +174,7 @@ class Genrator {
     await this.cloneProject()
     
     // 生成数据
-    const data = `const title = ${this.title};const menus = ${JSON.stringify(dirs)}`
+    const data = `const title = '${this.title}';const menus = ${JSON.stringify(dirs)}`
     // 写入data.js数据
     fs.writeFileSync(dataFile, data)
     // 将模板文件复制到github上传文件目录下
@@ -184,7 +184,7 @@ class Genrator {
     await this.uploadGithub()
 
     // 删除生成文件
-    removeDir()
+    // removeDir()
   }
 }
 
