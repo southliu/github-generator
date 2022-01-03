@@ -37,9 +37,8 @@ class Genrator {
       let fileName = arr[arr.length - 1]
       // 去除多余后缀
       if (fileName.includes('.git')) {
-        fileName = fileName.split('.git')[0]
+        fileName = fileName.substring(0, fileName.length - 4)
       }
-      console.log('fileName:', fileName);
       this.fileName = fileName
     }
   }

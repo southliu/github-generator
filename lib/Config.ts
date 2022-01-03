@@ -61,7 +61,7 @@ class Config {
     if (file) {
       file = file.replace(markdownText, `markdownUrl = '${markdownUrl}'`)
       file = file.replace(pageText, `pageUrl = '${pageUrl}'`)
-      file = file.replace(pageText, `title = '${title}'`)
+      file = file.replace(titleText, `title = '${title}'`)
       fs.writeFileSync(filePath, file)
     }
   }
