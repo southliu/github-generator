@@ -4,10 +4,11 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{ title || '个人博客' }}</title>
+  <title>个人博客</title>
   <link rel="stylesheet" href="./static/css/element-plus.css">
   <link rel="stylesheet" href="./static/css/index.css">
   <script src="./static/js/vue.js"></script>
+  <script src="./static/js/marked.js"></script>
   <script src="./static/js/element-plus.js"></script>
   <script src="./static/js/data.js"></script>
 </head>
@@ -37,9 +38,7 @@
         </el-menu>
       </div>
 
-      <div class="right">
-        <pre>{{ con }}</pre>
-      </div>
+      <div class="right" id="content"></div>
     </main>
   </div>
 </body>
@@ -47,9 +46,10 @@
   const App = {
     name: 'app',
     setup(props, context) {
-      const { ref } = Vue
       const activeIndex = ref('1') // 导航默认值
-      const con = ref('') // 渲染内容
+
+      // 渲染标题
+      if (title) document.title = title
 
       // 点击导航
       const handleSelectNav = (key, keyPath) => {}
@@ -59,7 +59,8 @@
         menus.length > 0 && menus.forEach(item => {
           if (item.name === keyPath[deep]) {
             if (deep === keyPath.length - 1) {
-              return con.value =  item.content
+              document.getElementById('content').innerHTML = marked.parse(item.content)
+              return false
             }
             if (item.children.length) {
               return handleMenuData(item.children, keyPath, ++deep)
@@ -75,7 +76,6 @@
 
       return {
         activeIndex,
-        con,
         menus,
         title,
         handleSelectNav,
