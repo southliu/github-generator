@@ -17,17 +17,16 @@
     <header>
       <p id="title">{{ title || '个人博客' }}</p>
       <el-menu
-        :default-active="activeIndex"
         :ellipsis="false"
         mode="horizontal"
       >
         <el-menu-item index="1">首页</el-menu-item>
-        <el-sub-menu index="2">
+        <!-- <el-sub-menu index="2">
           <template #title>分类</template>
           <el-menu-item index="2-1">前端</el-menu-item>
           <el-menu-item index="2-2">后端</el-menu-item>
           <el-menu-item index="2-3">算法</el-menu-item>
-        </el-sub-menu>
+        </el-sub-menu> -->
       </el-menu>
     </header>
   
@@ -46,6 +45,7 @@
   const App = {
     name: 'app',
     setup(props, context) {
+      const { ref } = Vue
       const activeIndex = ref('1') // 导航默认值
 
       // 渲染标题
