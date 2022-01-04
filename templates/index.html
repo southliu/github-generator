@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>个人博客</title>
   <link rel="stylesheet" href="./static/css/element-plus.css">
+  <link rel="stylesheet" href="./static/css/markdown.css">
   <link rel="stylesheet" href="./static/css/index.css">
   <script src="./static/js/vue.js"></script>
   <script src="./static/js/marked.js"></script>
@@ -37,7 +38,7 @@
         </el-menu>
       </div>
 
-      <div class="right" id="content"></div>
+      <div class="right markdown-body" id="content"></div>
     </main>
   </div>
 </body>
@@ -92,6 +93,14 @@
   app.component('blog-menu', {
     name: 'blogMenu',
     props: ['data'],
+    setup(props, context) {
+      // 过滤图片文件夹
+      const filters = ['images', 'images', 'imgs', 'img']
+      function handleFilterImg(name) {
+        return filters.indexOf(name) === -1
+      }
+      return { handleFilterImg }
+    },
     template: `<template v-for="item in data" :key="item.name">
         <el-menu-item
           v-if="item.children.length === 0 && item.name !== 'README'"
@@ -102,7 +111,7 @@
           {{ item.name }}
         </el-menu-item>
         <el-sub-menu
-          v-if="item.children.length > 0 && item.name !== 'images' && item.name !== 'img'"
+          v-if="item.children.length > 0 && handleFilterImg(item.name)"
           :index="item.name"
         >
           <template #title>{{ item.name }}</template>

@@ -1,6 +1,6 @@
 {
   "name": "github-generator",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "使用一串代码自动生成github page所需的静态文件",
   "main": "./main.ts",
   "bin": {
@@ -11,7 +11,7 @@
     "build": "tsc && copyfiles ./templates/** ./bin",
     "adduser": "npm adduser",
     "first-npm": "npm publish --access public",
-    "upload": "tsc && copyfiles ./templates/** ./bin && concurrently \"npm publish\""
+    "upload": "concurrently \"yarn build\" && concurrently \"npm publish\""
   },
   "repository": {
     "type": "git",

@@ -26,17 +26,20 @@ github start
 3. 规划模板文件，根据文件夹目录生成模板菜单数据。
 4. 模板文件全局覆盖github page项目。
 
-# 文件结构
+# 博客项目
+### 图片文件名**不能重复**
 ```
 前端^
 ├── JS基础
+|   |—— images
 |   |—— 原型链.md
 |   |—— 闭包.md
 |   └── Promise.md
 └── Vue
+    |—— images
     └── Vue-cli.md
 后端^
 └── Go基础
+    |—— images
     └── 基础类型.md
 ```
-<br />

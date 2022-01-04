@@ -4,7 +4,7 @@ import fs, { readFileSync } from 'fs-extra'
 import util from 'util'
 import path from 'path'
 import concurrently from 'concurrently'
-import { errorColor, MARKDOWN_DATA, PAGE_DATA } from './utils'
+import { errorColor, MARKDOWN_DATA, PAGE_DATA, removeDir } from './utils'
 
 // 文件所在路径
 const filePath = path.join(__dirname, `../${MARKDOWN_DATA}`)
@@ -90,9 +90,36 @@ class Genrator {
         })
       )
   }
+  
+  // 图片文件就传入template/static/images中
+  imgToTemplate(cureenPath: string) {
+    // 静态图片文件夹
+    const imgDir = path.join(__dirname, '../templates/static/images')
+    // 如果静态图片文件夹不存在则创建
+    if (!fs.existsSync(imgDir)) {
+      fs.mkdirsSync('./bin/templates/static/images')
+    }
+
+    // 过滤图片文件夹
+    const filters = ['images', 'images', 'imgs', 'img']
+    filters.forEach(item => {
+      const text = new RegExp(`/*\/${item}\/*/`)
+      if (cureenPath.match(text)) {
+        // 获取文件名
+        const arr = cureenPath.split('/')
+        const name = arr[arr.length - 1]
+        const file = path.join(__dirname, cureenPath)
+        const imgs = path.join(__dirname, `../templates/static/images/${name}`)
+        fs.copyFileSync(file, imgs)
+      }
+    })
+  }
 
   // 迭代获取文件目录列表
   handleDirs(cureenPath: string) {
+    // 检测到图片文件就传入template/static/images中
+    this.imgToTemplate(cureenPath)
+
     // 检测到.*文件名结构则退出迭代
     const isMarkdown = cureenPath.match(/\.\w/)
     if (isMarkdown) return []
@@ -109,7 +136,10 @@ class Genrator {
       // 获取内容
       let content = ''
       if (item.includes('.md')) {
-        content = readFileSync(path.join(__dirname, `${cureenPath}/${item}`), 'utf-8')
+        let markdownCon = readFileSync(path.join(__dirname, `${cureenPath}/${item}`), 'utf-8')
+        // 过滤文中图片路径 -> 转到static/images下面
+        markdownCon = markdownCon.replace(/<img src=\"\..*\//, '<img src=\"\.\/static\/images\/')
+        content = markdownCon
       }
 
       dirArrs.push({
@@ -160,18 +190,18 @@ class Genrator {
 
   // 写入模板
   async write() {
-    // 获取github markdown文件目录数据
-    const dirs = await this.getList()
     // 模版文件目录
     const templates = path.join(__dirname, '../templates')
     // 生成文件
     const projectDir = path.join(__dirname, `../${PAGE_DATA}/${this.fileName}`)
     // 数据文件
     const dataFile = path.join(__dirname, `../templates/static/js/data.js`)
+    // 获取github markdown文件目录数据
+    let dirs = await this.getList()
 
     // 克隆page项目
     await this.cloneProject()
-    
+
     // 生成数据
     const data = `const title = '${this.title}';const menus = ${JSON.stringify(dirs)}`
     // 写入data.js数据
@@ -183,7 +213,7 @@ class Genrator {
     await this.uploadGithub()
 
     // 删除生成文件
-    // removeDir()
+    removeDir()
   }
 }
 
