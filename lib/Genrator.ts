@@ -4,7 +4,7 @@ import fs, { readFileSync } from 'fs-extra'
 import util from 'util'
 import path from 'path'
 import concurrently from 'concurrently'
-import { errorColor, MARKDOWN_DATA, PAGE_DATA, removeDir } from './utils'
+import { errorColor, MARKDOWN_DATA, PAGE_DATA } from './utils'
 
 // 文件所在路径
 const filePath = path.join(__dirname, `../${MARKDOWN_DATA}`)
@@ -35,8 +35,10 @@ class Genrator {
     if (pageUrl) {
       const arr = pageUrl.split('/')
       let fileName = arr[arr.length - 1]
-      // 去除多余后缀
-      if (fileName.includes('.git')) {
+      // 获取最后四位后缀
+      const prefix = fileName.substring(fileName.length - 4, fileName.length)
+      // 去除.git后缀
+      if (prefix === '.git') {
         fileName = fileName.substring(0, fileName.length - 4)
       }
       this.fileName = fileName
@@ -151,11 +153,9 @@ class Genrator {
   // 上传github
   async uploadGithub() {
     const projectDir = path.join(__dirname, `../${PAGE_DATA}/${this.fileName}`)
-    await concurrently([
-      { command: `git add .`, cwd: projectDir },
-      { command: `git commit -m "${new Date().getTime()}"`, cwd: projectDir },
-      { command: `git push`, cwd: projectDir }
-    ])
+    await concurrently([{ command: `git add .`, cwd: projectDir }])
+    await concurrently([{ command: `git commit -m "${new Date().getTime()}"`, cwd: projectDir }])
+    await concurrently([{ command: `git push`, cwd: projectDir }])
   }
 
   // 写入模板

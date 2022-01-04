@@ -88,7 +88,7 @@ class Config {
     // 去除多余数据
     markdownUrl = markdownUrl ? markdownUrl[0].substring(15, markdownUrl[0].length - 1) : ''
     pageUrl = pageUrl ? pageUrl[0].substring(11, pageUrl[0].length - 1) : ''
-    title = title ? pageUrl[0] : ''
+    title = title ? title[0] : ''
 
     // 如果缓存数据为空则查询执行
     if (!markdownUrl || !pageUrl || !title) {
