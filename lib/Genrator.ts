@@ -100,11 +100,12 @@ class Genrator {
       fs.mkdirsSync('./bin/templates/static/images')
     }
 
-    // 过滤图片文件夹
-    const filters = ['images', 'images', 'imgs', 'img']
+    // 过滤图片文件
+    const filters = ['.jpg', '.png', '.jpeg', '.git']
     filters.forEach(item => {
-      const text = new RegExp(`/*\/${item}\/*/`)
+      const text = new RegExp(`/.*\/${item}/`)
       if (cureenPath.match(text)) {
+        console.log('cureenPath:', cureenPath)
         // 获取文件名
         const arr = cureenPath.split('/')
         const name = arr[arr.length - 1]

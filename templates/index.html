@@ -5,6 +5,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>个人博客</title>
+  <link href="favicon.ico" rel="shortcut icon">
   <link rel="stylesheet" href="./static/css/element-plus.css">
   <link rel="stylesheet" href="./static/css/markdown.css">
   <link rel="stylesheet" href="./static/css/index.css">
@@ -101,7 +102,8 @@
       }
       return { handleFilterImg }
     },
-    template: `<template v-for="item in data" :key="item.name">
+    template: `
+      <template v-for="item in data" :key="item.name">
         <el-menu-item
           v-if="item.children.length === 0 && item.name !== 'README'"
           :index="item.name"
@@ -117,7 +119,8 @@
           <template #title>{{ item.name }}</template>
           <blog-menu :data="item.children" />
         </el-sub-menu>
-      </template> `
+      </template> 
+    `
   })
 
   // 挂载至app
