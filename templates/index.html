@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="./static/css/index.css">
   <script src="./static/js/vue.js"></script>
   <script src="./static/js/element-plus.js"></script>
+  <script src="./static/js/default.js"></script>
   <script src="./static/js/data.js"></script>
 </head>
 <body>
@@ -37,7 +38,12 @@
         <blog-menu :data="menus" />
       </el-menu>
 
-      <div class="right markdown-body" id="content"></div>
+      <div
+        class="right markdown-body"
+        v-loading="isLoading"
+        v-html="content"
+      >
+      </div>
     </main>
   </div>
 </body>
@@ -47,6 +53,8 @@
     setup(props, context) {
       const { ref } = Vue
       const activeIndex = ref('1') // 导航默认值
+      const isLoading = ref(false) // loading
+      const content = ref(defaultData) // 内容
 
       // 渲染标题
       if (title) document.title = title
@@ -59,7 +67,7 @@
         menus.length > 0 && menus.forEach(item => {
           if (item.name === keyPath[deep]) {
             if (deep === keyPath.length - 1) {
-              document.getElementById('content').innerHTML = item.content
+              content.value = item.content
               return false
             }
             if (item.children.length) {
@@ -71,11 +79,15 @@
 
       // 点击菜单
       const handleSelectMenu = (key, keyPath) => {
+        isLoading.value = true
         handleMenuData(menus, keyPath)
+        isLoading.value = false
       }
 
       return {
         activeIndex,
+        isLoading,
+        content,
         menus,
         title,
         handleSelectNav,
