@@ -3,12 +3,20 @@ import loading from 'loading-cli'
 import fs, { readFileSync } from 'fs-extra'
 import util from 'util'
 import path from 'path'
-import concurrently from 'concurrently'
+import Git from 'simple-git'
 import MarkdownIt from 'markdown-it'
+import concurrently from 'concurrently'
 import { errorColor, MARKDOWN_DATA, PAGE_DATA, removeDir } from './utils'
 
 // 文件所在路径
 const filePath = path.join(__dirname, `../${MARKDOWN_DATA}`)
+// loading
+
+const loadingAnimate = (text: string) => loading({
+  text,
+  color: 'cyan',
+  frames: ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏']
+})
 
 type IDirs = {
   name: string;
@@ -48,11 +56,7 @@ class Genrator {
 
   // loading
   async handleLoading(fn: Promise<void>, text: string = '下载中...') {
-    const load = loading({
-      text,
-      color: 'cyan',
-      frames: ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏']
-    })
+    const load = loadingAnimate(text)
     load.start()
     try {
       const result = await fn;
@@ -130,8 +134,6 @@ class Genrator {
 
   // 迭代获取文件目录列表
   handleDirs(cureenPath: string) {
-    // 复制模板文件到bin中
-    this.copyTemplate()
 
     // 检测到图片文件就传入template/static/images中
     this.imgToTemplate(cureenPath)
@@ -205,13 +207,19 @@ class Genrator {
   // 上传github
   async uploadGithub() {
     const projectDir = path.join(__dirname, `../${PAGE_DATA}/${this.fileName}`)
-    concurrently([{ command: `git add .`, cwd: projectDir }])
-    setTimeout(() => {
-      concurrently([{ command: `git commit -m "${new Date().getTime()}"`, cwd: projectDir }])
-    }, 200);
-    setTimeout(() => {
-      concurrently([{ command: `git push`, cwd: projectDir }])
-    }, 400);
+
+    // 加载动画
+    const load = loadingAnimate('上传中...')
+    load.start()
+
+    // 调用下载
+    Git({ baseDir: projectDir })
+      .add('.')
+      .commit(`git commit -m "${new Date().getTime()}"`)
+      .push([], () => {
+        load.stop()
+        console.log(' 上传成功')
+      })
   }
 
   // 写入模板
@@ -225,6 +233,8 @@ class Genrator {
     // 获取github markdown文件目录数据
     let dirs = await this.getList()
 
+    // 复制模板文件到bin中
+    this.copyTemplate()
     // 克隆page项目
     this.cloneProject()
 

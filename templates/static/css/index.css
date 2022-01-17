@@ -46,14 +46,22 @@ main .right {
   margin: 58px 0 0 300px;
   width: calc(100% - 200px);
   height: 100%;
-  padding: 0 30px;
+  padding: 30px;
   min-height: calc(100vh - 58px);
   box-sizing: border-box;
   overflow: auto;
 }
 
-main .menu_title {
+main .right .menu_title {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+}
+
+.span-ellipsis {
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  display: block;
 }

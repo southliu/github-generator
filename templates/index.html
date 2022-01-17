@@ -7,7 +7,8 @@
   <title>个人博客</title>
   <link href="favicon.ico" rel="shortcut icon">
   <link rel="stylesheet" href="./static/css/element-plus.css">
-  <link rel="stylesheet" href="./static/css/markdown.css">
+  <link rel="stylesheet" href="./static/css/github-markdown.css">
+  <link rel="stylesheet" href="./static/css/github-markdown-light.css">
   <link rel="stylesheet" href="./static/css/index.css">
   <script src="./static/js/vue.js"></script>
   <script src="./static/js/element-plus.js"></script>
@@ -107,13 +108,15 @@
           :title="item.name"
           class="menu_title"
         >
-          {{ item.name }}
+          <span class="span-ellipsis">{{ item.name }}</span>
         </el-menu-item>
         <el-sub-menu
           v-if="item.children.length > 0 && handleFilterImg(item.name)"
           :index="item.name"
         >
-          <template #title>{{ item.name }}</template>
+          <template #title>
+            <span class="span-ellipsis">{{ item.name }}</span>
+          </template>
           <blog-menu :data="item.children" />
         </el-sub-menu>
       </template> 

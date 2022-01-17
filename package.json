@@ -1,6 +1,6 @@
 {
   "name": "github-generator",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "使用一串代码自动生成github page所需的静态文件",
   "main": "./main.ts",
   "bin": {
@@ -54,6 +54,7 @@
     "concurrently": "^7.0.0",
     "copyfiles": "^2.4.1",
     "markdown-it": "^12.3.2",
+    "simple-git": "^2.48.0",
     "typescript": "^4.5.4"
   }
 }
