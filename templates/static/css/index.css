@@ -4,6 +4,10 @@ body {
 }
 
 header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
   height: 58px;
   display: flex;
   align-items: center;
@@ -11,6 +15,8 @@ header {
   padding: 0 30px;
   box-sizing: border-box;
   border-bottom: 1px solid #ececec;
+  background-color: #fff;
+  z-index: 9999;
 }
 
 header #title {
@@ -25,19 +31,25 @@ main {
 }
 
 main .left {
+  position: fixed;
+  left: 0;
+  top: 58px;
+  bottom: 0;
   width: 300px;
   height: 100%;
   min-height: calc(100vh - 58px);
   box-sizing: border-box;
-  overflow: hidden;
+  overflow: auto;
 }
 
 main .right {
+  margin: 58px 0 0 300px;
   width: calc(100% - 200px);
   height: 100%;
   padding: 0 30px;
   min-height: calc(100vh - 58px);
   box-sizing: border-box;
+  overflow: auto;
 }
 
 main .menu_title {

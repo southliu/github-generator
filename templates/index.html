@@ -10,7 +10,6 @@
   <link rel="stylesheet" href="./static/css/markdown.css">
   <link rel="stylesheet" href="./static/css/index.css">
   <script src="./static/js/vue.js"></script>
-  <script src="./static/js/marked.js"></script>
   <script src="./static/js/element-plus.js"></script>
   <script src="./static/js/data.js"></script>
 </head>
@@ -22,7 +21,7 @@
         :ellipsis="false"
         mode="horizontal"
       >
-        <el-menu-item index="1">首页</el-menu-item>
+        <!-- <el-menu-item index="1">首页</el-menu-item> -->
         <!-- <el-sub-menu index="2">
           <template #title>分类</template>
           <el-menu-item index="2-1">前端</el-menu-item>
@@ -33,11 +32,9 @@
     </header>
   
     <main>
-      <div class="left">
-        <el-menu @select="handleSelectMenu">
-          <blog-menu :data="menus" />
-        </el-menu>
-      </div>
+      <el-menu class="left" @select="handleSelectMenu">
+        <blog-menu :data="menus" />
+      </el-menu>
 
       <div class="right markdown-body" id="content"></div>
     </main>
@@ -61,7 +58,7 @@
         menus.length > 0 && menus.forEach(item => {
           if (item.name === keyPath[deep]) {
             if (deep === keyPath.length - 1) {
-              document.getElementById('content').innerHTML = marked.parse(item.content)
+              document.getElementById('content').innerHTML = item.content
               return false
             }
             if (item.children.length) {

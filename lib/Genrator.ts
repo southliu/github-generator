@@ -4,6 +4,7 @@ import fs, { readFileSync } from 'fs-extra'
 import util from 'util'
 import path from 'path'
 import concurrently from 'concurrently'
+import MarkdownIt from 'markdown-it'
 import { errorColor, MARKDOWN_DATA, PAGE_DATA, removeDir } from './utils'
 
 // 文件所在路径
@@ -105,7 +106,6 @@ class Genrator {
     filters.forEach(item => {
       const text = new RegExp(`/.*\/${item}/`)
       if (cureenPath.match(text)) {
-        console.log('cureenPath:', cureenPath)
         // 获取文件名
         const arr = cureenPath.split('/')
         const name = arr[arr.length - 1]
@@ -116,8 +116,23 @@ class Genrator {
     })
   }
 
+  // 复制模板文件
+  copyTemplate() {
+    const templates = path.join(__dirname, '../templates')
+
+    // 如果模板文件不存在则复制
+    if (!fs.existsSync(templates)) {
+      const publicTemplates = path.join(__dirname, '../../templates')
+      fs.mkdirSync(templates)
+      fs.copySync(publicTemplates, templates)
+    }
+  }
+
   // 迭代获取文件目录列表
   handleDirs(cureenPath: string) {
+    // 复制模板文件到bin中
+    this.copyTemplate()
+
     // 检测到图片文件就传入template/static/images中
     this.imgToTemplate(cureenPath)
 
@@ -130,6 +145,12 @@ class Genrator {
     const dirs = fs.readdirSync(filePath)
     if (dirs.length === 0) return []
 
+    const md = new MarkdownIt({
+      html: true,
+      xhtmlOut: true,
+      breaks: true,
+      linkify: true
+    })
     const dirArrs: IDirs[] = []
     dirs.forEach(item => {
       // 去除.md后缀名
@@ -139,8 +160,8 @@ class Genrator {
       if (item.includes('.md')) {
         let markdownCon = readFileSync(path.join(__dirname, `${cureenPath}/${item}`), 'utf-8')
         // 过滤文中图片路径 -> 转到static/images下面
-        markdownCon = markdownCon.replace(/<img src=\"\..*\//, '<img src=\"\.\/static\/images\/')
-        content = markdownCon
+        markdownCon = markdownCon.replace(/<img src=\"\..*\//g, '<img src=\"\.\/static\/images\/')
+        content = md.render(markdownCon)
       }
 
       dirArrs.push({
@@ -166,7 +187,7 @@ class Genrator {
   }
 
   // 克隆github page项目
-  async cloneProject() {
+  cloneProject() {
     const faterDir = path.join(__dirname, `../${PAGE_DATA}`)
     const projectDir = path.join(__dirname, `../${PAGE_DATA}/${this.fileName}`)
 
@@ -177,16 +198,20 @@ class Genrator {
 
     // 文件不存在则下载下载github page
     if (!fs.existsSync(projectDir)) {
-      await concurrently([{ command: `git clone ${this.pageUrl}`, cwd: faterDir }])
+      concurrently([{ command: `git clone ${this.pageUrl}`, cwd: faterDir }])
     }
   }
 
   // 上传github
   async uploadGithub() {
     const projectDir = path.join(__dirname, `../${PAGE_DATA}/${this.fileName}`)
-    await concurrently([{ command: `git add .`, cwd: projectDir }])
-    await concurrently([{ command: `git commit -m "${new Date().getTime()}"`, cwd: projectDir }])
-    await concurrently([{ command: `git push`, cwd: projectDir }])
+    concurrently([{ command: `git add .`, cwd: projectDir }])
+    setTimeout(() => {
+      concurrently([{ command: `git commit -m "${new Date().getTime()}"`, cwd: projectDir }])
+    }, 200);
+    setTimeout(() => {
+      concurrently([{ command: `git push`, cwd: projectDir }])
+    }, 400);
   }
 
   // 写入模板
@@ -201,7 +226,7 @@ class Genrator {
     let dirs = await this.getList()
 
     // 克隆page项目
-    await this.cloneProject()
+    this.cloneProject()
 
     // 生成数据
     const data = `const title = '${this.title}';const menus = ${JSON.stringify(dirs)}`
@@ -211,7 +236,7 @@ class Genrator {
     fs.copySync(templates, projectDir)
 
     // 上传至github page
-    await this.uploadGithub()
+    this.uploadGithub()
 
     // 删除生成文件
     removeDir()
