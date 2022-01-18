@@ -1,18 +1,23 @@
 ## 功能介绍
-### 使用一串代码自动生成github page所需的静态文件。
+### 一键生成github风格的免费博客。
+## 业务场景
+### 当你有用github写markdown文章习惯，我们这套代码可以一键将markdown文章项目转成github page所需静态页面。
+```
+博客github项目 => github page(免费域名)所需文件 
+```
 
 ## 操作指令
 ### 下载操作
 ```
 npm i -g github-generator
 ```
-### 配置参数
-```
-github config
-```
 ### 生成并替换代码
 ```
 github start
+```
+### 配置参数
+```
+github config
 ```
 
 ## 配置说明

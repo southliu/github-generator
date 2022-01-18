@@ -134,7 +134,6 @@ class Genrator {
 
   // 迭代获取文件目录列表
   handleDirs(cureenPath: string) {
-
     // 检测到图片文件就传入template/static/images中
     this.imgToTemplate(cureenPath)
 
@@ -224,6 +223,9 @@ class Genrator {
 
   // 写入模板
   async write() {
+    // 复制模板文件到bin中
+    this.copyTemplate()
+
     // 模版文件目录
     const templates = path.join(__dirname, '../templates')
     // 生成文件
@@ -233,8 +235,6 @@ class Genrator {
     // 获取github markdown文件目录数据
     let dirs = await this.getList()
 
-    // 复制模板文件到bin中
-    this.copyTemplate()
     // 克隆page项目
     this.cloneProject()
 
@@ -246,7 +246,7 @@ class Genrator {
     fs.copySync(templates, projectDir)
 
     // 上传至github page
-    // this.uploadGithub()
+    this.uploadGithub()
 
     // 删除生成文件
     // removeDir()

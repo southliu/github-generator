@@ -18,33 +18,47 @@
 <body>
   <div id="app">
     <header>
-      <p id="title">{{ title || '个人博客' }}</p>
-      <el-menu
-        :ellipsis="false"
-        mode="horizontal"
-      >
-        <!-- <el-menu-item index="1">首页</el-menu-item> -->
-        <!-- <el-sub-menu index="2">
-          <template #title>分类</template>
-          <el-menu-item index="2-1">前端</el-menu-item>
-          <el-menu-item index="2-2">后端</el-menu-item>
-          <el-menu-item index="2-3">算法</el-menu-item>
-        </el-sub-menu> -->
-      </el-menu>
+      <div class="sidebar-button" @click="handleSidebar">
+        <svg class="icon" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512">
+          <path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z" class=""></path>
+        </svg>
+      </div>
+      <p class="title" @click="handleTitle">{{ title || '个人博客' }}</p>
+      <div class="nav">
+        <el-menu :ellipsis="false" mode="horizontal">
+          <!-- <el-menu-item index="1">首页</el-menu-item> -->
+          <!-- <el-sub-menu index="2">
+            <template #title>分类</template>
+            <el-menu-item index="2-1">前端</el-menu-item>
+            <el-menu-item index="2-2">后端</el-menu-item>
+            <el-menu-item index="2-3">算法</el-menu-item>
+          </el-sub-menu> -->
+        </el-menu>
+      </div>
     </header>
   
     <main>
-      <el-menu class="left" @select="handleSelectMenu">
+      <el-menu
+        class="menu"
+        :class="{ 'sidebar-open': isActive }"
+        @select="handleSelectMenu"
+      >
         <blog-menu :data="menus" />
       </el-menu>
 
       <div
-        class="right markdown-body"
+        class="content markdown-body"
         v-loading="isLoading"
         v-html="content"
       >
       </div>
     </main>
+
+    <div
+      v-if="isActive"
+      class="cover"
+      @click="handleHiddenMenu"
+    ></div>
   </div>
 </body>
 <script>
@@ -54,6 +68,7 @@
       const { ref } = Vue
       const activeIndex = ref('1') // 导航默认值
       const isLoading = ref(false) // loading
+      const isActive = ref(false) // 触发菜单显示隐藏
       const content = ref(defaultData) // 内容
 
       // 渲染标题
@@ -82,14 +97,34 @@
         isLoading.value = true
         handleMenuData(menus, keyPath)
         isLoading.value = false
+        if (isActive.value) isActive.value = false
+      }
+
+      // 点击侧边栏按钮
+      const handleSidebar = () => {
+        isActive.value = !isActive.value
+      }
+
+      // 隐藏菜单
+      const handleHiddenMenu = () => {
+        isActive.value = false
+      }
+
+      // 点击标题
+      const handleTitle = () => {
+        content.value = defaultData
       }
 
       return {
         activeIndex,
         isLoading,
+        isActive,
         content,
         menus,
         title,
+        handleTitle,
+        handleSidebar,
+        handleHiddenMenu,
         handleSelectNav,
         handleSelectMenu
       }
