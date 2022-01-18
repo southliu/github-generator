@@ -246,7 +246,7 @@ class Genrator {
     fs.copySync(templates, projectDir)
 
     // 上传至github page
-    this.uploadGithub()
+    // this.uploadGithub()
 
     // 删除生成文件
     // removeDir()
