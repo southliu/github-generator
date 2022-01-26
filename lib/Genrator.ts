@@ -6,7 +6,7 @@ import path from 'path'
 import Git from 'simple-git'
 import MarkdownIt from 'markdown-it'
 import concurrently from 'concurrently'
-import { errorColor, MARKDOWN_DATA, PAGE_DATA, removeDir } from './utils'
+import { errorColor, MARKDOWN_DATA, PAGE_DATA } from './utils'
 
 // 文件所在路径
 const filePath = path.join(__dirname, `../${MARKDOWN_DATA}`)
@@ -30,11 +30,13 @@ class Genrator {
   title: string
   isSuccess: boolean
   fileName: string | undefined
+  classify: string[]
   constructor(markdownUrl: string, pageUrl: string, title: string) {
     this.markdownUrl = markdownUrl
     this.pageUrl =  pageUrl
     this.title = title
     this.isSuccess = true
+    this.classify = []
 
     /**
      * 获取文件名
@@ -106,18 +108,14 @@ class Genrator {
     }
 
     // 过滤图片文件
-    const filters = ['.jpg', '.png', '.jpeg', '.git']
-    filters.forEach(item => {
-      const text = new RegExp(`/.*\/${item}/`)
-      if (cureenPath.match(text)) {
-        // 获取文件名
-        const arr = cureenPath.split('/')
-        const name = arr[arr.length - 1]
-        const file = path.join(__dirname, cureenPath)
-        const imgs = path.join(__dirname, `../templates/static/images/${name}`)
-        fs.copyFileSync(file, imgs)
-      }
-    })
+    if (cureenPath.match(/.*\/.*\.(jpg|jpeg|png|gif)/)) {
+      // 获取文件名
+      const arr = cureenPath.split('/')
+      const name = arr[arr.length - 1]
+      const file = path.join(__dirname, cureenPath)
+      const imgs = path.join(__dirname, `../templates/static/images/${name}`)
+      fs.copyFileSync(file, imgs)
+    }
   }
 
   // 复制模板文件
@@ -138,7 +136,7 @@ class Genrator {
     this.imgToTemplate(cureenPath)
 
     // 检测到.*文件名结构则退出迭代
-    const isMarkdown = cureenPath.match(/\.\w/)
+    const isMarkdown = cureenPath.match(/\.(jpg|jpeg|png|gif|md)/)
     if (isMarkdown) return []
 
     // 获取文件目录
@@ -154,6 +152,15 @@ class Genrator {
     })
     const dirArrs: IDirs[] = []
     dirs.forEach(item => {
+      const { length } = item
+      // README.md文件不生成代码
+      if (item === 'README.md') return
+      // 如果末尾为^，则归类类目
+      if (item.substring(length - 1, length) === '^') {
+        const name = item.substring(0, length - 1)
+        this.classify.push(name)
+      }
+
       // 去除.md后缀名
       const name = item.includes('.md') ? item.split('.md')[0] : item
       // 获取内容
@@ -184,6 +191,15 @@ class Genrator {
     }
 
     const dirs = this.isSuccess ? this.handleDirs(`../${MARKDOWN_DATA}`) : []
+
+    // 去除最外层^符号
+    dirs.length > 0 && dirs.forEach(item => {
+      const { length } = item.name
+      if (item.name.substring(length - 1, length) === '^') {
+        item.name = item.name.substring(0, length - 1)
+      }
+    })
+
     return dirs
   }
 
@@ -234,6 +250,8 @@ class Genrator {
     const dataFile = path.join(__dirname, `../templates/static/js/data.js`)
     // 获取github markdown文件目录数据
     let dirs = await this.getList()
+    console.log('dirs:', dirs);
+    console.log('this.classify:', this.classify)
 
     // 克隆page项目
     this.cloneProject()
@@ -246,7 +264,7 @@ class Genrator {
     fs.copySync(templates, projectDir)
 
     // 上传至github page
-    // this.uploadGithub()
+    this.uploadGithub()
 
     // 删除生成文件
     // removeDir()

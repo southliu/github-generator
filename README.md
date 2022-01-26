@@ -1,10 +1,15 @@
 ## 功能介绍
-### 一键生成github风格的免费博客。
+> 一键生成github风格的免费博客。
+
 ## 业务场景
-### 当你有用github写markdown文章习惯，我们这套代码可以一键将markdown文章项目转成github page所需静态页面。
+> 当你有用github写markdown文章习惯，我们这套代码可以一键将markdown文章项目转成github page所需静态页面。
 ```
 博客github项目 => github page(免费域名)所需文件 
 ```
+
+## 预览
+* 博客效果: https://southliu.github.io
+* markdown项目: https://github.com/SouthLiu/blog
 
 ## 操作指令
 ### 下载操作

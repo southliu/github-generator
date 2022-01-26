@@ -18,16 +18,28 @@ program
     await config.update()
   })
 
-  // 开始执行
-  program
-    .description('开始执行')
-    .command('start')
-    .action(async () => {
-      const config = new Config()
-      const { markdownUrl, pageUrl, title } = await config.readCache()
-      const genrator = new Genrator(markdownUrl, pageUrl, title)
-      genrator.write()
-    })
+// 开始执行
+program
+  .description('开始执行')
+  .command('start')
+  .action(async () => {
+    const config = new Config()
+    const { markdownUrl, pageUrl, title } = await config.readCache()
+    const genrator = new Genrator(markdownUrl, pageUrl, title)
+    genrator.write()
+  })
+
+// 获取列表数据
+program
+  .description('获取列表数据')
+  .command('getList')
+  .action(async () => {
+    const config = new Config()
+    const { markdownUrl, pageUrl, title } = await config.readCache()
+    const genrator = new Genrator(markdownUrl, pageUrl, title)
+    console.log(genrator.getList())
+  })
+  
 
 // 帮助说明
 program
