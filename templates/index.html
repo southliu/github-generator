@@ -25,14 +25,28 @@
       </div>
       <p class="title" @click="handleTitle">{{ title || '个人博客' }}</p>
       <div class="nav">
-        <el-menu :ellipsis="false" mode="horizontal">
-          <!-- <el-menu-item index="1">首页</el-menu-item> -->
-          <!-- <el-sub-menu index="2">
+        <el-menu v-if="classify.length > 0" :ellipsis="false" default-active="1" mode="horizontal">
+          <el-menu-item index="1" @click="handleTitle">首页</el-menu-item>
+          <template v-if="classify.length <= 2">
+            <el-menu-item
+              v-for="(item, index) in classify"
+              :key="index"
+              :index="index"
+              @click="handleTitle"
+            >
+              {{ item }}
+            </el-menu-item>
+          </template>
+          <el-sub-menu v-if="classify.length > 2" index="2">
             <template #title>分类</template>
-            <el-menu-item index="2-1">前端</el-menu-item>
-            <el-menu-item index="2-2">后端</el-menu-item>
-            <el-menu-item index="2-3">算法</el-menu-item>
-          </el-sub-menu> -->
+            <el-menu-item
+              v-for="(item, index) in classify"
+              :index="`2-${index}`"
+              :key="index"
+            >
+              {{ item }}
+            </el-menu-item>
+          </el-sub-menu>
         </el-menu>
       </div>
     </header>
@@ -122,6 +136,7 @@
         content,
         menus,
         title,
+        classify,
         handleTitle,
         handleSidebar,
         handleHiddenMenu,

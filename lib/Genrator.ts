@@ -131,7 +131,7 @@ class Genrator {
   }
 
   // 迭代获取文件目录列表
-  handleDirs(cureenPath: string) {
+  handleDirs(cureenPath: string, level: number = 0) {
     // 检测到图片文件就传入template/static/images中
     this.imgToTemplate(cureenPath)
 
@@ -176,7 +176,7 @@ class Genrator {
         name,
         content,
         fileName: item,
-        children: this.handleDirs(`${cureenPath}/${item}`)
+        children: this.handleDirs(`${cureenPath}/${item}`, level++)
       })
     })
 
@@ -257,14 +257,18 @@ class Genrator {
     this.cloneProject()
 
     // 生成数据
-    const data = `const title = '${this.title}';const menus = ${JSON.stringify(dirs)}`
+    const data = `
+      const title = '${this.title}';
+      const classify = ${JSON.stringify(this.classify)};
+      const menus = ${JSON.stringify(dirs)}
+    `
     // 写入data.js数据
     fs.writeFileSync(dataFile, data)
     // 将模板文件复制到github上传文件目录下
     fs.copySync(templates, projectDir)
 
     // 上传至github page
-    this.uploadGithub()
+    // this.uploadGithub()
 
     // 删除生成文件
     // removeDir()
