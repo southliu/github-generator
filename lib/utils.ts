@@ -35,6 +35,8 @@ export function italicFont(str: string) {
 export function removeDir() {
   const pageDir = path.join(__dirname, `../${PAGE_DATA}`)
   const markdownDir = path.join(__dirname, `../${MARKDOWN_DATA}`)
-  fs.removeSync(pageDir)
-  fs.removeSync(markdownDir)
+  const templateDir = path.join(__dirname, `../templates`)
+  if (fs.existsSync(pageDir)) fs.removeSync(pageDir)
+  if (fs.existsSync(markdownDir)) fs.removeSync(markdownDir)
+  if (fs.existsSync(templateDir)) fs.removeSync(templateDir)
 }
