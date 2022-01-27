@@ -5,13 +5,11 @@ import util from 'util'
 import path from 'path'
 import Git from 'simple-git'
 import MarkdownIt from 'markdown-it'
-import concurrently from 'concurrently'
-import { errorColor, MARKDOWN_DATA, PAGE_DATA } from './utils'
+import { errorColor, MARKDOWN_DATA, PAGE_DATA, removeDir } from './utils'
 
 // 文件所在路径
 const filePath = path.join(__dirname, `../${MARKDOWN_DATA}`)
 // loading
-
 const loadingAnimate = (text: string) => loading({
   text,
   color: 'cyan',
@@ -88,7 +86,7 @@ class Genrator {
     // 调用下载
     await this.handleLoading(
       download(`direct:${this.markdownUrl}/archive/refs/heads/main.zip`, filePath)
-        .then(() => console.log('\n 下载成功'))
+        .then(() => console.log('\n  下载成功'))
         .catch(() => {
           // 错误处理
           this.isSuccess = false
@@ -152,14 +150,15 @@ class Genrator {
     })
     const dirArrs: IDirs[] = []
     dirs.forEach(item => {
-      const { length } = item
       // README.md文件不生成代码
       if (item === 'README.md') return
+
       // 如果末尾为^，则归类类目
-      if (item.substring(length - 1, length) === '^') {
-        const name = item.substring(0, length - 1)
-        this.classify.push(name)
-      }
+      // const { length } = item
+      // if (item.substring(length - 1, length) === '^') {
+      //   const name = item.substring(0, length - 1)
+      //   this.classify.push(name)
+      // }
 
       // 去除.md后缀名
       const name = item.includes('.md') ? item.split('.md')[0] : item
@@ -193,30 +192,14 @@ class Genrator {
     const dirs = this.isSuccess ? this.handleDirs(`../${MARKDOWN_DATA}`) : []
 
     // 去除最外层^符号
-    dirs.length > 0 && dirs.forEach(item => {
-      const { length } = item.name
-      if (item.name.substring(length - 1, length) === '^') {
-        item.name = item.name.substring(0, length - 1)
-      }
-    })
+    // dirs.length > 0 && dirs.forEach(item => {
+    //   const { length } = item.name
+    //   if (item.name.substring(length - 1, length) === '^') {
+    //     item.name = item.name.substring(0, length - 1)
+    //   }
+    // })
 
     return dirs
-  }
-
-  // 克隆github page项目
-  cloneProject() {
-    const faterDir = path.join(__dirname, `../${PAGE_DATA}`)
-    const projectDir = path.join(__dirname, `../${PAGE_DATA}/${this.fileName}`)
-
-    // 不存在则生成
-    if (!fs.existsSync(faterDir)) {
-      fs.mkdirsSync(`./bin/${PAGE_DATA}`)
-    }
-
-    // 文件不存在则下载下载github page
-    if (!fs.existsSync(projectDir)) {
-      concurrently([{ command: `git clone ${this.pageUrl}`, cwd: faterDir }])
-    }
   }
 
   // 上传github
@@ -233,7 +216,9 @@ class Genrator {
       .commit(`git commit -m "${new Date().getTime()}"`)
       .push([], () => {
         load.stop()
-        console.log(' 上传成功')
+        console.log('  上传成功')
+        // 删除生成文件
+        removeDir()
       })
   }
 
@@ -250,11 +235,14 @@ class Genrator {
     const dataFile = path.join(__dirname, `../templates/static/js/data.js`)
     // 获取github markdown文件目录数据
     let dirs = await this.getList()
-    console.log('dirs:', dirs);
-    console.log('this.classify:', this.classify)
 
     // 克隆page项目
-    this.cloneProject()
+    const faterDir = path.join(__dirname, `../${PAGE_DATA}`)
+
+    // 不存在则生成
+    if (!fs.existsSync(faterDir)) {
+      fs.mkdirSync(`./bin/${PAGE_DATA}`)
+    }
 
     // 生成数据
     const data = `
@@ -264,14 +252,28 @@ class Genrator {
     `
     // 写入data.js数据
     fs.writeFileSync(dataFile, data)
-    // 将模板文件复制到github上传文件目录下
-    fs.copySync(templates, projectDir)
 
-    // 上传至github page
-    // this.uploadGithub()
+    // 复制模板文件至github上传文件目录下，并上传github pafe
+    const finishGithub = () => {
+      // 将模板文件复制到github上传文件目录下
+      fs.copySync(templates, projectDir)
+      // 上传至github page
+      this.uploadGithub()
+    }
 
-    // 删除生成文件
-    // removeDir()
+    // 文件不存在则下载下载github page
+    if (!fs.existsSync(projectDir)) {
+      const load = loadingAnimate('复制中...')
+      load.start()
+      Git({ baseDir: faterDir })
+        .clone(this.pageUrl, undefined, () => {
+          load.stop()
+          console.log('  复制成功')
+          finishGithub()
+        })
+    } else {
+      finishGithub()
+    }
   }
 }
 

@@ -39,16 +39,16 @@ github config
 ## 博客项目
 ### 图片文件名**不能重复**
 ```
-前端^1
+前端
 ├── JS基础
 |   |—— images
-|   |—— 原型链^.md
+|   |—— 原型链.md
 |   |—— 闭包.md
 |   └── Promise.md
 └── Vue
     |—— images
     └── Vue-cli.md
-后端^2
+后端
 └── Go基础
     |—— images
     └── 基础类型.md
