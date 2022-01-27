@@ -233,16 +233,16 @@ class Genrator {
     const projectDir = path.join(__dirname, `../${PAGE_DATA}/${this.fileName}`)
     // 数据文件
     const dataFile = path.join(__dirname, `../templates/static/js/data.js`)
-    // 获取github markdown文件目录数据
-    let dirs = await this.getList()
-
     // 克隆page项目
     const faterDir = path.join(__dirname, `../${PAGE_DATA}`)
 
-    // 不存在则生成
+    // 不存在page文件则创建
     if (!fs.existsSync(faterDir)) {
       fs.mkdirSync(`./bin/${PAGE_DATA}`)
     }
+
+    // 获取github markdown文件目录数据
+    let dirs = await this.getList()
 
     // 生成数据
     const data = `
