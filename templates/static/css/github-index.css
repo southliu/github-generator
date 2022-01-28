@@ -5,6 +5,11 @@ body {
   font-weight: 400;
 }
 
+.iconfont {
+  font-size: 22px;
+  font-weight: bold;
+}
+
 header {
   position: fixed;
   top: 0;
@@ -44,6 +49,17 @@ header .title {
 
 header .nav {
   display: block;
+  display: flex;
+  align-items: center;
+}
+
+header .nav .search-icon {
+  display: none;
+}
+
+header .nav .search {
+  width: 240px;
+  transform: translateX(0);
 }
 
 main {
@@ -57,10 +73,9 @@ main .menu {
   bottom: 0;
   left: 0;
   width: 16.4rem;
-  transform: translateX(0);
-  transition: transform 0.25s ease;
   z-index: 98;
   overflow-y: auto;
+  transition: transform 0.25s ease;
 }
 
 main .content {
@@ -87,15 +102,6 @@ main .content .menu_title {
   display: block;
 }
 
-.cover {
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 100;
-}
-
 @media screen and (max-width: 719px) {
   header {
     padding: 0.7rem 1.5rem 0.7rem 4rem;
@@ -105,8 +111,23 @@ main .content .menu_title {
     display: block;
   }
 
-  header .nav {
-    display: none;
+  header .nav .search-icon {
+    display: block;
+  }
+
+  .hidden {
+    display: none !important;
+  }
+
+  header .nav .search {
+    width: 0 !important;
+    overflow: hidden;
+    /* transition: width 0.25s ease; */
+  }
+
+  header .nav .search-show {
+    width: 100% !important;
+    z-index: 102;
   }
 
   main .menu {
@@ -115,7 +136,7 @@ main .content .menu_title {
 
   main .sidebar-open {
     transform: translateX(0) !important;
-    z-index: 101 !important;
+    z-index: 101;
   }
 
   main .content {

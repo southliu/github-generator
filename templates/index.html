@@ -9,7 +9,8 @@
   <link rel="stylesheet" href="./static/css/element-plus.css">
   <link rel="stylesheet" href="./static/css/github-markdown.css">
   <link rel="stylesheet" href="./static/css/github-markdown-light.css">
-  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="stylesheet" href="./static/css/github-iconfont.css">
+  <link rel="stylesheet" href="./static/css/github-index.css">
   <script src="./static/js/vue.js"></script>
   <script src="./static/js/element-plus.js"></script>
   <script src="./static/js/default.js"></script>
@@ -18,14 +19,39 @@
 <body>
   <div id="app">
     <header>
-      <div class="sidebar-button" @click="handleSidebar">
-        <svg class="icon" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512">
-          <path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z" class=""></path>
-        </svg>
+      <div class="sidebar-button" @click.stop="handleSidebar">
+        <i class="iconfont" :class="{ 'hidden': isActive }">&#xe62b;</i>
+        <i class="iconfont" :class="{ 'hidden': !isActive }">&#xe621;</i>
       </div>
       <p class="title" @click="handleTitle">{{ title || '个人博客' }}</p>
       <div class="nav">
-        <el-menu v-if="classify.length > 0" :ellipsis="false" default-active="1" mode="horizontal">
+        <i
+          class="iconfont search-icon"
+          :class="{ 'hidden': isSearch }"
+          @click.stop="handleSearch"
+        >
+          &#xe622;
+        </i>
+        <el-select-v2
+          v-model="value"
+          class="search"
+          :class="{ 'search-show': isSearch }"
+          filterable
+          clearable
+          remote
+          :options="options"
+          :loading="isSelectLoading"
+          :remote-method="handleRemote"
+          placeholder="搜索"
+        >
+          <template #default="{ item }">
+            <span @click="handleClickSelect(item.content)">
+              {{ item.label }}
+            </span>
+          </template>
+        </el-select-v2>
+
+        <!-- <el-menu v-if="classify.length > 0" :ellipsis="false" default-active="1" mode="horizontal">
           <el-menu-item index="1" @click="handleTitle">首页</el-menu-item>
           <template v-if="classify.length <= 2">
             <el-menu-item
@@ -47,10 +73,10 @@
               {{ item }}
             </el-menu-item>
           </el-sub-menu>
-        </el-menu>
+        </el-menu> -->
       </div>
     </header>
-  
+
     <main>
       <el-menu
         class="menu"
@@ -67,29 +93,36 @@
       >
       </div>
     </main>
-
-    <div
-      v-if="isActive"
-      class="cover"
-      @click="handleHiddenMenu"
-    ></div>
   </div>
 </body>
 <script>
   const App = {
     name: 'app',
     setup(props, context) {
-      const { ref } = Vue
+      const { ref, onMounted } = Vue
       const activeIndex = ref('1') // 导航默认值
       const isLoading = ref(false) // loading
+      const isSelectLoading = ref(false) // 选择框loading
       const isActive = ref(false) // 触发菜单显示隐藏
+      const isSearch = ref(false) // 触发搜索显示隐藏
       const content = ref(defaultData) // 内容
+      const value = ref('')
+      const options = ref([])
 
-      // 渲染标题
-      if (title) document.title = title
+      onMounted(() => {
+        // 渲染标题
+        if (title) document.title = title
 
-      // 点击导航
-      const handleSelectNav = (key, keyPath) => {}
+        // 点击监听
+        document.addEventListener('click', e => {
+          if(e.target.className !== 'menu' && e.target.className !== 'span-ellipsis'){
+            isActive.value = false
+          }
+          if(e.target.className !== 'search'){
+            isSearch.value = false
+          }
+        })
+      })
 
       // 递归菜单
       const handleMenuData = (menus, keyPath, deep = 0) => {
@@ -119,28 +152,70 @@
         isActive.value = !isActive.value
       }
 
-      // 隐藏菜单
-      const handleHiddenMenu = () => {
-        isActive.value = false
-      }
-
       // 点击标题
       const handleTitle = () => {
         content.value = defaultData
       }
 
+      // 处理搜索
+      const handleSearch = () => {
+        isSearch.value = !isSearch.value
+      }
+
+      // 处理搜索内容
+      const handleRemote = (query) => {
+        options.value = []
+        if (query !== '' && menus.length > 0) {
+          isSelectLoading.value = true
+          const cache = [] // 缓存name，重复则不保存
+          
+          // 递归被选择的内容
+          const getData = (menus) => {
+            menus.length > 0 && menus.forEach(item => {
+              if (
+                !cache.includes(item.name) &&
+                !item?.children?.length &&
+                (item.name.includes(query) || item.content.includes(query))
+              ) {
+                options.value.push({
+                  value: item.name,
+                  label: item.name,
+                  content: item.content
+                })
+                cache.push(item.name)
+              }
+              if (item?.children?.length > 0) getData(item.children)
+            })
+          }
+          getData(menus)
+          isSelectLoading.value = false
+        }
+      }
+
+      // 点击搜索内容
+      const handleClickSelect = (data) => {
+        content.value = data
+        options.value = []
+        isSearch.value = false
+      }
+
       return {
         activeIndex,
         isLoading,
+        isSelectLoading,
         isActive,
+        isSearch,
         content,
         menus,
         title,
+        value,
+        options,
         classify,
         handleTitle,
         handleSidebar,
-        handleHiddenMenu,
-        handleSelectNav,
+        handleSearch,
+        handleRemote,
+        handleClickSelect,
         handleSelectMenu
       }
     }

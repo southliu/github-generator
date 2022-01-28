@@ -258,7 +258,7 @@ class Genrator {
       // 将模板文件复制到github上传文件目录下
       fs.copySync(templates, projectDir)
       // 上传至github page
-      this.uploadGithub()
+      // this.uploadGithub()
     }
 
     // 文件不存在则下载下载github page
