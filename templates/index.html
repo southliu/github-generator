@@ -81,6 +81,7 @@
       <el-menu
         class="menu"
         :class="{ 'sidebar-open': isActive }"
+        :unique-opened="true"
         @select="handleSelectMenu"
       >
         <blog-menu :data="menus" />
