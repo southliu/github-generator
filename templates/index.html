@@ -33,21 +33,21 @@
           &#xe622;
         </i>
         <el-select-v2
-          v-model="value"
-          class="search"
-          :class="{ 'search-show': isSearch }"
+          v-model="searchValue"
           filterable
           clearable
           remote
+          class="search"
+          :class="{ 'search-show': isSearch }"
           :options="options"
           :loading="isSelectLoading"
           :remote-method="handleRemote"
           placeholder="搜索"
         >
           <template #default="{ item }">
-            <span @click="handleClickSelect(item.content)">
+            <div class="search-item" @click="handleClickSelect(item.content)">
               {{ item.label }}
-            </span>
+            </div>
           </template>
         </el-select-v2>
 
@@ -106,7 +106,7 @@
       const isActive = ref(false) // 触发菜单显示隐藏
       const isSearch = ref(false) // 触发搜索显示隐藏
       const content = ref(defaultData) // 内容
-      const value = ref('')
+      const searchValue = ref('')
       const options = ref([])
 
       onMounted(() => {
@@ -196,6 +196,7 @@
       const handleClickSelect = (data) => {
         content.value = data
         options.value = []
+        searchValue.value = undefined
         isSearch.value = false
       }
 
@@ -208,7 +209,7 @@
         content,
         menus,
         title,
-        value,
+        searchValue,
         options,
         classify,
         handleTitle,
