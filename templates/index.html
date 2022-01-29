@@ -114,6 +114,14 @@
         // 渲染标题
         if (title) document.title = title
 
+        // 渲染内容
+        console.log('location:', location)
+        if (location.search) {
+          const name = location.search.split('=')[1]
+          console.log('name:', name)
+          handleMenuData(menus, name)
+        }
+
         // 点击监听
         document.addEventListener('click', e => {
           if(e.target.className !== 'menu' && e.target.className !== 'span-ellipsis'){
@@ -131,6 +139,7 @@
           if (item.name === keyPath[deep]) {
             if (deep === keyPath.length - 1) {
               content.value = item.content
+              history.replaceState({}, item.name, `?name=${item.name}`)
               return false
             }
             if (item.children.length) {
