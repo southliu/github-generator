@@ -1,6 +1,6 @@
 {
   "name": "github-generator",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "使用一串代码自动生成github page所需的静态文件",
   "main": "./main.ts",
   "bin": {
