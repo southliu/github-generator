@@ -115,11 +115,22 @@
         if (title) document.title = title
 
         // 渲染内容
-        console.log('location:', location)
         if (location.search) {
-          const name = location.search.split('=')[1]
-          console.log('name:', name)
-          handleMenuData(menus, name)
+          const search = location.search.split('=')[1]
+          const name = decodeURI(search)
+          
+          // 递归菜单获取内容
+          const handleGetContent = (arr, name) => {
+            arr.length > 0 && arr.forEach(item => {
+              if (!item?.children?.length && item.name === name) {
+                content.value = item.content
+              }
+              if (item.children.length) {
+                return handleGetContent(item.children, name)
+              }
+            })
+          }
+          handleGetContent(menus, name)
         }
 
         // 点击监听
