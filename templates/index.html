@@ -45,7 +45,10 @@
           placeholder="搜索"
         >
           <template #default="{ item }">
-            <div class="search-item" @click="handleClickSelect(item.content)">
+            <div
+              class="search-item"
+              @click="handleClickSelect(item.value, item.content)"
+            >
               {{ item.label }}
             </div>
           </template>
@@ -82,6 +85,7 @@
         class="menu"
         :class="{ 'sidebar-open': isActive }"
         :unique-opened="true"
+        :default-active="defaultMenuIndex"
         @select="handleSelectMenu"
       >
         <blog-menu :data="menus" />
@@ -107,8 +111,9 @@
       const isActive = ref(false) // 触发菜单显示隐藏
       const isSearch = ref(false) // 触发搜索显示隐藏
       const content = ref(defaultData) // 内容
-      const searchValue = ref('')
-      const options = ref([])
+      const searchValue = ref('') // 搜索值
+      const options = ref([]) // 搜索下拉值
+      const defaultMenuIndex = ref('') // 菜单默认值
 
       onMounted(() => {
         // 渲染标题
@@ -124,6 +129,7 @@
             arr.length > 0 && arr.forEach(item => {
               if (!item?.children?.length && item.name === name) {
                 content.value = item.content
+                defaultMenuIndex.value = item.name
               }
               if (item.children.length) {
                 return handleGetContent(item.children, name)
@@ -176,6 +182,8 @@
       // 点击标题
       const handleTitle = () => {
         content.value = defaultData
+        defaultMenuIndex.value = ''
+        history.replaceState({}, title, '')
       }
 
       // 处理搜索
@@ -214,8 +222,9 @@
       }
 
       // 点击搜索内容
-      const handleClickSelect = (data) => {
+      const handleClickSelect = (name, data) => {
         content.value = data
+        defaultMenuIndex.value = name
         options.value = []
         searchValue.value = undefined
         isSearch.value = false
@@ -232,6 +241,7 @@
         title,
         searchValue,
         options,
+        defaultMenuIndex,
         classify,
         handleTitle,
         handleSidebar,
