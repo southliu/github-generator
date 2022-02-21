@@ -253,22 +253,24 @@ class Genrator {
     // 写入data.js数据
     fs.writeFileSync(dataFile, data)
 
+    console.log('dataFile:', dataFile)
+
     // 复制模板文件至github上传文件目录下，并上传github pafe
     const finishGithub = () => {
       // 将模板文件复制到github上传文件目录下
       fs.copySync(templates, projectDir)
       // 上传至github page
-      this.uploadGithub()
+      // this.uploadGithub()
     }
 
     // 文件不存在则下载下载github page
     if (!fs.existsSync(projectDir)) {
-      const load = loadingAnimate('复制中...')
+      const load = loadingAnimate('克隆中...')
       load.start()
       Git({ baseDir: faterDir })
         .clone(this.pageUrl, undefined, () => {
           load.stop()
-          console.log('  复制成功')
+          console.log('  克隆成功')
           finishGithub()
         })
     } else {
