@@ -4,7 +4,7 @@ import path from 'path'
 import figlet from 'figlet'
 import { cyanColor } from './lib/utils'
 import Config from './lib/Config'
-import Genrator from './lib/Genrator'
+import Generator from './lib/Generator'
 
 const pack = require(path.join(__dirname, '../package.json'))
 const program = new Command(pack.name)
@@ -25,8 +25,8 @@ program
   .action(async () => {
     const config = new Config()
     const { markdownUrl, pageUrl, title } = await config.readCache()
-    const genrator = new Genrator(markdownUrl, pageUrl, title)
-    genrator.write()
+    const Generators = new Generator(markdownUrl, pageUrl, title)
+    Generators.write()
   })
 
 // 获取列表数据
@@ -36,8 +36,8 @@ program
   .action(async () => {
     const config = new Config()
     const { markdownUrl, pageUrl, title } = await config.readCache()
-    const genrator = new Genrator(markdownUrl, pageUrl, title)
-    console.log(genrator.getList())
+    const Generators = new Generator(markdownUrl, pageUrl, title)
+    console.log(Generators.getList())
   })
   
 

@@ -22,13 +22,13 @@ type IDirs = {
   content: string;
   children: IDirs[]
 }
-class Genrator {
-  markdownUrl: string
-  pageUrl: string
-  title: string
-  isSuccess: boolean
-  fileName: string | undefined
-  classify: string[]
+class Generator {
+  private markdownUrl: string
+  private pageUrl: string
+  private title: string
+  private isSuccess: boolean
+  private fileName: string | undefined
+  private classify: string[]
   constructor(markdownUrl: string, pageUrl: string, title: string) {
     this.markdownUrl = markdownUrl
     this.pageUrl =  pageUrl
@@ -97,7 +97,7 @@ class Genrator {
   }
   
   // 图片文件就传入template/static/images中
-  imgToTemplate(cureenPath: string) {
+  imgToTemplate(currentPath: string) {
     // 静态图片文件夹
     const imgDir = path.join(__dirname, '../templates/static/images')
     // 如果静态图片文件夹不存在则创建
@@ -106,11 +106,11 @@ class Genrator {
     }
 
     // 过滤图片文件
-    if (cureenPath.match(/.*\/.*\.(jpg|jpeg|png|gif)/)) {
+    if (currentPath.match(/.*\/.*\.(jpg|jpeg|png|gif)/)) {
       // 获取文件名
-      const arr = cureenPath.split('/')
+      const arr = currentPath.split('/')
       const name = arr[arr.length - 1]
-      const file = path.join(__dirname, cureenPath)
+      const file = path.join(__dirname, currentPath)
       const imgs = path.join(__dirname, `../templates/static/images/${name}`)
       fs.copyFileSync(file, imgs)
     }
@@ -129,16 +129,16 @@ class Genrator {
   }
 
   // 迭代获取文件目录列表
-  handleDirs(cureenPath: string, level: number = 0) {
+  handleDirs(currentPath: string, level: number = 0) {
     // 检测到图片文件就传入template/static/images中
-    this.imgToTemplate(cureenPath)
+    this.imgToTemplate(currentPath)
 
     // 检测到.*文件名结构则退出迭代
-    const isMarkdown = cureenPath.match(/\.(jpg|jpeg|png|gif|md)/)
+    const isMarkdown = currentPath.match(/\.(jpg|jpeg|png|gif|md)/)
     if (isMarkdown) return []
 
     // 获取文件目录
-    const filePath = path.join(__dirname, cureenPath)
+    const filePath = path.join(__dirname, currentPath)
     const dirs = fs.readdirSync(filePath)
     if (dirs.length === 0) return []
 
@@ -148,7 +148,7 @@ class Genrator {
       breaks: true,
       linkify: true
     })
-    const dirArrs: IDirs[] = []
+    const dirArrays: IDirs[] = []
     dirs.forEach(item => {
       // README.md文件不生成代码
       if (item === 'README.md') return
@@ -165,21 +165,21 @@ class Genrator {
       // 获取内容
       let content = ''
       if (item.includes('.md')) {
-        let markdownCon = readFileSync(path.join(__dirname, `${cureenPath}/${item}`), 'utf-8')
+        let markdownCon = readFileSync(path.join(__dirname, `${currentPath}/${item}`), 'utf-8')
         // 过滤文中图片路径 -> 转到static/images下面
         markdownCon = markdownCon.replace(/<img src=\"\..*\//g, '<img src=\"\.\/static\/images\/')
         content = md.render(markdownCon)
       }
 
-      dirArrs.push({
+      dirArrays.push({
         name,
         content,
         fileName: item,
-        children: this.handleDirs(`${cureenPath}/${item}`, level++)
+        children: this.handleDirs(`${currentPath}/${item}`, level++)
       })
     })
 
-    return dirArrs
+    return dirArrays
   }
 
   // 获取目录列表
@@ -234,10 +234,10 @@ class Genrator {
     // 数据文件
     const dataFile = path.join(__dirname, `../templates/static/js/data.js`)
     // 克隆page项目
-    const faterDir = path.join(__dirname, `../${PAGE_DATA}`)
+    const cloneDir = path.join(__dirname, `../${PAGE_DATA}`)
 
     // 不存在page文件则创建
-    if (!fs.existsSync(faterDir)) {
+    if (!fs.existsSync(cloneDir)) {
       fs.mkdirSync(`./bin/${PAGE_DATA}`)
     }
 
@@ -255,22 +255,22 @@ class Genrator {
 
     console.log('dataFile:', dataFile)
 
-    // 复制模板文件至github上传文件目录下，并上传github pafe
+    // 复制模板文件至github上传文件目录下，并上传github page
     const finishGithub = () => {
       // 将模板文件复制到github上传文件目录下
       fs.copySync(templates, projectDir)
       // 上传至github page
-      // this.uploadGithub()
+      this.uploadGithub()
     }
 
     // 文件不存在则下载下载github page
     if (!fs.existsSync(projectDir)) {
-      const load = loadingAnimate('克隆中...')
+      const load = loadingAnimate('上传中...')
       load.start()
-      Git({ baseDir: faterDir })
+      Git({ baseDir: cloneDir })
         .clone(this.pageUrl, undefined, () => {
           load.stop()
-          console.log('  克隆成功')
+          console.log('  上传成功')
           finishGithub()
         })
     } else {
@@ -279,4 +279,4 @@ class Genrator {
   }
 }
 
-export default Genrator
+export default Generator
